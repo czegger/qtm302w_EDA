@@ -1,0 +1,108 @@
+---
+title: "EDA project v1"
+author: "Claire Zegger"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setup
+
+```{r}
+## obtain data set
+sdoh <- read.csv("data/sdohc.csv")
+
+## load packages for analysis
+library(tidyverse)
+library(ggplot2)
+```
+
+## Data Cleaning
+
+```{r}
+# drop rows with NA values in variables of interest 
+sdoh <- sdoh %>%
+  drop_na(ACS_PCT_PRIVATE_ANY) %>% ## % pop. w/private health insurance
+  drop_na(COUNTY)
+```
+
+## Examining private insurance variable
+
+### Summary Statistics
+
+```{r}
+# calculate summary statistics for % pop. w/private health insurance variable
+summary(sdoh$ACS_PCT_PRIVATE_ANY)
+```
+
+### Health insurance distribution
+
+```{r, echo=FALSE}
+# visualize distribution of insurance coverage in US by county
+ggplot(sdoh, aes(x=ACS_PCT_PRIVATE_ANY)) + 
+  geom_histogram(color = "grey", fill = "light blue")+
+  xlab("% of county population with private health insurance")+
+  ylab("number of counties")+
+  ggtitle("Distribution of private health insurance coverage by county in the US")+
+  theme_minimal()
+```
+
+### Counties with highest and lowest insurance coverage
+
+```{r}
+# create vector with counties and insurance
+keep <- c("COUNTY", "ACS_PCT_PRIVATE_ANY")
+
+# create new data frame with selected variables
+insurance_df <- sdoh[keep]
+
+# sort data in descending order by insurance coverage
+insurance_df <- insurance_df %>%
+  arrange(desc(ACS_PCT_PRIVATE_ANY))
+  
+# view top 5 counties with highest insurance coverage
+head(insurance_df)
+
+```
+
+```{r}
+# sort data in ascending order by insurance coverage
+insurance_df <- insurance_df %>%
+  arrange(ACS_PCT_PRIVATE_ANY)
+
+# view top 5 counties with lowest insurance coverage
+head(insurance_df)
+```
+
+# Relationships with other variables
+
+## 1: Limited English Speaking
+
+### Summary statistics for % of population from limited English-speaking households
+
+```{r}
+# summary statistics for % of limited English-speaking households
+summary(sdoh$ACS_PCT_HH_LIMIT_ENGLISH)
+```
+
+### Graphing the relationship
+
+```{r, echo = FALSE}
+# correlation between limited English-speaking and private insurance coverage
+ggplot(sdoh, aes(x = ACS_PCT_HH_LIMIT_ENGLISH, y = ACS_PCT_PRIVATE_ANY)) +
+  geom_point(color = 'blue',alpha = 0.5, size = 2) +
+  xlab("% of limited English-speaking households") +
+  ylab("% of population with private insurance")+
+  ggtitle("Association between English-speaking and private insurance ownership")+
+  theme_minimal()
+```
+
+### Correlation Coefficient
+
+```{r} 
+## calculate correlation coefficient 
+cor(sdoh$ACS_PCT_HH_LIMIT_ENGLISH, sdoh$ACS_PCT_PRIVATE_ANY)
+```
