@@ -8,28 +8,18 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-#### Introduction
-
-In this exploratory analysis, we examined the 2020 Social Determinants of Health (SDOH) dataset. This dataset was assembled by the Agency for Healthcare Research and Quality, which falls under jurisdiction of the US Department of Health and Human Services. The data itself is sourced from a variety of nationwide surveys such as the US Census and the PLACES dataset (collected by the Center for Disease Control). The types of variables included in this dataset fall into 5 main categories:
-
-1.  Social Context = demographics, socioeconomic status
-2.  Economic Context = employment, income
-3.  Education = level of education, literacy
-4.  Infrastructure = food accessibility, housing
-5.  Healthcare Context = insurance, distance to healthcare facilities
-
-We decided to center our analysis around healthcare context by investigating how private healthcare insurance coverage varies with two other determinants of health: social context and education.
+#### INSERT HERE: A rough introduction written that provides context on your datasets provenance and motivates your analysis. 
 
 ## Setup
 
 ```{r}
 ## obtain data set
-sdoh <- read.csv("data/sdohc.csv")
+sdoh <- read.csv("data/SDOH_2020_COUNTY_1_0.csv")
 
 ## load packages for analysis
 library(tidyverse)
 library(ggplot2)
+library(plotly)
 ```
 
 ## Data Cleaning
@@ -114,15 +104,15 @@ ggplot(sdoh, aes(x = ACS_PCT_HH_LIMIT_ENGLISH, y = ACS_PCT_PRIVATE_ANY)) +
 
 ### Correlation Coefficient
 
-```{r}
+```{r} 
 ## calculate correlation coefficient 
 cor(sdoh$ACS_PCT_HH_LIMIT_ENGLISH, sdoh$ACS_PCT_PRIVATE_ANY)
 ```
 
-## 2: Various Education Levels/Degrees
 
-### Distribution of Education Variables by County
+## 2: Various Education Levels/Degrees 
 
+### Distribution of Education Variables by County 
 ```{r}
 # visualize distribution of education level in US by county
 ggplot(sdoh, aes(x=ACS_PCT_LT_HS)) + 
@@ -154,7 +144,8 @@ ggplot(sdoh, aes(x=ACS_PCT_GRADUATE_DGR)) +
   theme_minimal()
 ```
 
-### Summary statistics for % of population with various education levels
+
+### Summary statistics for % of population with various education levels 
 
 ```{r}
 {
@@ -228,8 +219,7 @@ ggplot(sdoh_long, aes(x = Education_Percentage, y = ACS_PCT_PRIVATE_ANY, color =
   theme(legend.title = element_blank())
 ```
 
-### Correlation Coefficient
-
+### Correlation Coefficient 
 ```{r}
 {
   cat("\n % of Population with Less than High School Education\n")
@@ -245,3 +235,139 @@ ggplot(sdoh_long, aes(x = Education_Percentage, y = ACS_PCT_PRIVATE_ANY, color =
   print(cor(sdoh$ACS_PCT_GRADUATE_DGR, sdoh$ACS_PCT_PRIVATE_ANY))
 }
 ```
+
+
+
+#Gaining knowledge about the relationship between private insurance coverage and racial demographics might help one better understand more general trends in healthcare equity and accessibility.  We can investigate if some racial groups are more likely to have private insurance while others may depend on public programs or go without insurance by examining this link. The analysis that follows looks at the relationship between private insurance coverage and racial demographics, offering a data-driven viewpoint on how racial differences could affect access to healthcare.
+
+
+## 3. Various Racial Groups
+
+### Distribution of Racial Groups across county
+```{r}
+#visualization of each racial group in percentage for counties
+ggplot(sdoh, aes(x=ACS_PCT_WHITE)) + 
+  geom_histogram(color = "grey", fill = "lightblue", bins = 30) +
+  xlab("% of county population identifying as White") +
+  ylab("Number of counties") +
+  ggtitle("Distribution of White Population by County in the US") +
+  theme_minimal()
+
+ggplot(sdoh, aes(x=ACS_PCT_BLACK)) + 
+  geom_histogram(color = "grey", fill = "lightblue", bins = 30) +
+  xlab("% of county population identifying as Black") +
+  ylab("Number of counties") +
+  ggtitle("Distribution of Black Population by County in the US") +
+  theme_minimal()
+
+ggplot(sdoh, aes(x=ACS_PCT_ASIAN)) + 
+  geom_histogram(color = "grey", fill = "lightblue", bins = 30) +
+  xlab("% of county population identifying as Asian") +
+  ylab("Number of counties") +
+  ggtitle("Distribution of Asian Population by County in the US") +
+  theme_minimal()
+
+ggplot(sdoh, aes(x=ACS_PCT_AIAN)) + 
+  geom_histogram(color = "grey", fill = "lightblue", bins = 30) +
+  xlab("% of county population identifying as American Indian/Alaska Native (AIAN)") +
+  ylab("Number of counties") +
+  ggtitle("Distribution of AIAN Population by County in the US") +
+  theme_minimal()
+
+ggplot(sdoh, aes(x=ACS_PCT_MULT_RACE)) + 
+  geom_histogram(color = "grey", fill = "lightblue", bins = 30) +
+  xlab("% of county population identifying as Multiracial") +
+  ylab("Number of counties") +
+  ggtitle("Distribution of Multiracial Population by County in the US") +
+  theme_minimal()
+
+```
+
+### Summary statistics for the percentage of each racial group
+```{r}
+{
+  cat("\n % of Population Identifying as White\n")
+  print(summary(sdoh$ACS_PCT_WHITE))
+
+  cat("\n % of Population Identifying as Black\n")
+  print(summary(sdoh$ACS_PCT_BLACK))
+
+  cat("\n % of Population Identifying as Asian\n")
+  print(summary(sdoh$ACS_PCT_ASIAN))
+
+  cat("\n % of Population Identifying as American Indian/Alaska Native (AIAN)\n")
+  print(summary(sdoh$ACS_PCT_AIAN))
+
+  cat("\n % of Population Identifying as Multiracial\n")
+  print(summary(sdoh$ACS_PCT_MULT_RACE))
+}
+
+```
+
+### Graphing the relationship between Private insurance and each racial group
+```{r}
+#selecting the racial variables, county and private insurance
+selected_racial_group_with_county <- sdoh %>%
+  select(COUNTY, ACS_PCT_WHITE, ACS_PCT_BLACK, ACS_PCT_ASIAN, ACS_PCT_AIAN, ACS_PCT_MULT_RACE, ACS_PCT_PRIVATE_ANY)
+
+selected_racial_group_with_county
+
+# Identify top 5 counties with highest private insurance coverage
+top_counties <- selected_racial_group_with_county %>%
+  arrange(desc(ACS_PCT_PRIVATE_ANY)) %>%
+  slice(1:5)
+
+top_counties
+
+# Convert race columns into long format for visualization
+selected_long <- top_counties %>%
+  pivot_longer(cols = c(ACS_PCT_WHITE, ACS_PCT_BLACK, ACS_PCT_ASIAN, ACS_PCT_AIAN, ACS_PCT_MULT_RACE),
+               names_to = "Race",
+               values_to = "Percentage")
+
+selected_long
+
+
+# Creating an interactive bar plot
+p <- ggplot(selected_long, aes(x = Race, y = Percentage, fill = Race, 
+                               text = paste("County:", COUNTY, 
+                                            "<br>Private Insurance:", round(ACS_PCT_PRIVATE_ANY, 2)))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ COUNTY, scales = "free_y") +  # Facet by County only
+  labs(title = "Race Distribution in Top 5 Counties with Highest Private Insurance",
+       x = NULL,  # Removes x-axis label to avoid repetition
+       y = "Percentage of Population") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Removes race labels at the bottom
+        axis.ticks.x = element_blank(),
+        strip.text = element_text(size = 10, face = "bold"),  # Adjust facet title size
+        legend.position = "bottom")  # Moves legend to bottom
+
+# Convert to interactive plotly graph
+interactive_plot <- ggplotly(p, tooltip = "text")
+
+interactive_plot
+```
+
+
+### Correlation Coefficient between private insurance and racial groups
+```{r}
+{
+  cat("\nCorrelation: % White vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_WHITE, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+
+  cat("\nCorrelation: % Black vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_BLACK, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+
+  cat("\nCorrelation: % Asian vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_ASIAN, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+
+  cat("\nCorrelation: % American Indian/Alaska Native vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_AIAN, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+
+  cat("\nCorrelation: % Multiracial vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_MULT_RACE, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+}
+```
+
+
