@@ -8,13 +8,24 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-#### INSERT HERE: A rough introduction written that provides context on your datasets provenance and motivates your analysis. 
+
+#### Introduction
+
+In this exploratory analysis, we examined the 2020 Social Determinants of Health (SDOH) dataset. This dataset was assembled by the Agency for Healthcare Research and Quality, which falls under jurisdiction of the US Department of Health and Human Services. The data itself is sourced from a variety of nationwide surveys such as the US Census and the PLACES dataset (collected by the Center for Disease Control). The types of variables included in this dataset fall into 5 main categories:
+
+1.  Social Context = demographics, socioeconomic status
+2.  Economic Context = employment, income
+3.  Education = level of education, literacy
+4.  Infrastructure = food accessibility, housing
+5.  Healthcare Context = insurance, distance to healthcare facilities
+
+We decided to center our analysis around healthcare context by investigating how private healthcare insurance coverage varies with two other determinants of health: social context and education.
 
 ## Setup
 
 ```{r}
 ## obtain data set
-sdoh <- read.csv("sdohc.csv")
+sdoh <- read.csv("data/sdohc.csv")
 
 ## load packages for analysis
 library(tidyverse)
@@ -103,15 +114,15 @@ ggplot(sdoh, aes(x = ACS_PCT_HH_LIMIT_ENGLISH, y = ACS_PCT_PRIVATE_ANY)) +
 
 ### Correlation Coefficient
 
-```{r} 
+```{r}
 ## calculate correlation coefficient 
 cor(sdoh$ACS_PCT_HH_LIMIT_ENGLISH, sdoh$ACS_PCT_PRIVATE_ANY)
 ```
 
+## 2: Various Education Levels/Degrees
 
-## 2: Various Education Levels/Degrees 
+### Distribution of Education Variables by County
 
-### Distribution of Education Variables by County 
 ```{r}
 # visualize distribution of education level in US by county
 ggplot(sdoh, aes(x=ACS_PCT_LT_HS)) + 
@@ -143,8 +154,7 @@ ggplot(sdoh, aes(x=ACS_PCT_GRADUATE_DGR)) +
   theme_minimal()
 ```
 
-
-### Summary statistics for % of population with various education levels 
+### Summary statistics for % of population with various education levels
 
 ```{r}
 {
@@ -218,7 +228,8 @@ ggplot(sdoh_long, aes(x = Education_Percentage, y = ACS_PCT_PRIVATE_ANY, color =
   theme(legend.title = element_blank())
 ```
 
-### Correlation Coefficient 
+### Correlation Coefficient
+
 ```{r}
 {
   cat("\n % of Population with Less than High School Education\n")
@@ -234,5 +245,3 @@ ggplot(sdoh_long, aes(x = Education_Percentage, y = ACS_PCT_PRIVATE_ANY, color =
   print(cor(sdoh$ACS_PCT_GRADUATE_DGR, sdoh$ACS_PCT_PRIVATE_ANY))
 }
 ```
-
-
