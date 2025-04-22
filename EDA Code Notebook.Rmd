@@ -1,0 +1,420 @@
+---
+title: "**The Reality of Access: An Exploratory Data Analysis of Social Determinants of Private Health Insurance Ownership in the United States**"
+author: "Claire Zegger, Rashmi Raveendran, Yvette Addo"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = getwd())  
+```
+# **Introduction**
+
+#### In this exploratory analysis, we examined the 2020 Social Determinants of Health (SDOH) dataset. This dataset was assembled by the [Agency for Healthcare Research and Quality](https://www.ahrq.gov/sdoh/data-analytics/sdoh-data.html), (AHRCQ, 2023) which falls under jurisdiction of the US Department of Health and Human Services. The data itself is sourced from a variety of nationwide surveys, such as the US Census and the PLACES dataset (collected by the Center for Disease Control). The purpose of this project was to easily accessible data that can be used for research, visualize patterns pertaining to health outcomes, and contribute to them. The types of variables included in this dataset fall into 5 main categories:  
+
+#### 1. Social Context = demographics, socioeconomic status 
+
+#### 2. Economic Context = employment, income 
+
+#### 3. Education = level of education, literacy 
+
+#### 4. Infrastructure = food accessibility, housing 
+
+#### 5. Healthcare Context = insurance, distance to healthcare facilities 
+
+#### For our project, we decided to center our analysis of this dataset around healthcare context by investigating how private healthcare insurance coverage varies with two other determinants of health: social context and education. Health insurance plays a significant role in determining an individual’s overall access to health and, subsequently, their respective wellbeing. We are motivated to analyze how private insurance is affected by social determinants of health, in order to understand what factors are associated with one's access or lack thereof to healthcare. In summary, the purpose of this work and our central research question is the following: 
+
+#### *What is the relationship between social and educational indicators such as a) English proficiency, b) education level, and c) race and private health insurance coverage in the United States?*
+
+#### We hope our findings will help identify possible routes of intervention to improve healthcare access for all.  
+
+# **Dataset Structure and Setup**
+
+#### To begin, the dataset is first loaded into R Studio, the integrated development environment used for data analysis in this project, using the "read.csv" function. The function imports all the dataset values, variables, rows, and columns into R studio to be used for analysis. 
+
+```{r, message=FALSE}
+#Obtain data set
+sdoh <- read.csv("data/sdohc.csv")
+```
+
+#### Next, various packages were loaded into R Studio to be used for analysis. These packages contain numerous functions in R Studio that will allow for deepened analysis including creating subsets of variables, creating plots, and calculating various summary statistics for variables all at once. 
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+#Load packages for analysis
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+library(dplyr)
+```
+
+### *Data Cleaning of Key Initial Variables*
+
+#### To clean the data, the "drop_na" function was used to clean our key variable of interest, the percentage of a population with private health insurance. This particular removes all the NA values from the variable, which are all the "not applicable" or blank submissions, to ensure that summary statistics and plots can be generated and analyzed without error. 
+
+```{r}
+#Drop rows with NA values in variables of interest 
+sdoh <- sdoh %>%
+  drop_na(ACS_PCT_PRIVATE_ANY) %>% 
+  drop_na(COUNTY)
+```
+#### At this point, no further data cleaning or reformatting was completed. Instead, the next step was examining the private health insurance ownership variable to assess if further data cleaning was needed. It is noted that after further investigation, cleaning was not conducted as only correlational plots were viewed in this analysis. 
+
+### *Examining Structure of Private Insurance Variable*
+
+#### The first step in examining the private health insurance variable was to calculate various summary statistics of the variable using the "summary()" function. 
+
+```{r}
+#Calculate summary statistics for % pop. w/private health insurance variable
+summary(sdoh$ACS_PCT_PRIVATE_ANY)
+```
+
+#### The median (57.87) and mean (57.23) of the percentage of county population with private health insurance are very close in the summary output. This indicates a normal distribution of the variable, which can also be visualized in the histogram plot before using the "ggplot" and "geom_histogram" functions to create the plot. 
+
+```{r}
+#Visualize distribution of insurance coverage in US by county
+ggplot(sdoh, aes(x=ACS_PCT_PRIVATE_ANY)) + 
+  geom_histogram(color = "grey", fill = "light blue")+
+  xlab("% of county population with private health insurance")+
+  ylab("number of counties")+
+  ggtitle("Distribution of private health insurance coverage by county in the US")+
+  theme_minimal()
+```
+
+#### To further examnine the variable, the counties with the highest and lowest private health insurance coverage were also determined using a variety of functions. 
+
+#### First, a new vector was created, which only includes the two variables of interest, the county and the percentage of the county population with private health insurance. Then a new, smaller dataframe was created with only the variables in the new vector. 
+
+#### The "arrange(desc)" function was responsible for organizing the insurance coverage in descending order, so when the "head()" function is used, only the top five counties by high private insurance coverage are printed. 
+
+```{r}
+#Create vector with counties and insurance
+keep <- c("COUNTY", "ACS_PCT_PRIVATE_ANY")
+
+#Create new data frame with selected variables
+insurance_df <- sdoh[keep]
+
+#Sort data in descending order by insurance coverage
+insurance_df <- insurance_df %>%
+  arrange(desc(ACS_PCT_PRIVATE_ANY))
+  
+#View top 5 counties with highest insurance coverage
+head(insurance_df)
+
+```
+
+#### In the same way, using just the "arrange()" function organizes the insurance coverage in ascending order, so when the "head()" function is used, only the lowest five counties by high private insurance coverage are printed. 
+
+```{r}
+#Sort data in ascending order by insurance coverage
+insurance_df <- insurance_df %>%
+  arrange(ACS_PCT_PRIVATE_ANY)
+
+#View top 5 counties with lowest insurance coverage
+head(insurance_df)
+```
+
+#### This information provides information regarding geographic distribution of private health insurance ownership by county, in conjunction with an earlier exploration of the quantitative distribution of the variable. Having a basic understanding of the variable distribution, further investigative analysis was then performed. 
+
+# **Relationships Between Private Health Insurance and Other Variables in the Dataset**
+
+### *1: Limited English Speaking*
+
+#### We decided to explore how English proficiency is related to health insurance coverage. According to a study on the relationship between English proficiency and healthcare access, “due to legal and policy contexts governing access to resources, adults with LEP, who are less likely to be US-born, are subjected to stricter health insurance coverage eligibility requirements and exposed to greater complexity and administrative burden in determining eligibility and acquiring and maintaining health insurance coverage” ([Ramirez et al, 2023](https://doi.org/10.1007/s11606-022-07690-3)). Based on these previous findings, we predicted a negative correlation between English proficiency and private health insurance coverage. 
+
+#### In this dataset, the percentage of limited English-speaking households per county is encoded as the variable “ACS_PCT_HH_LIMT_ENGLISH.” The summary() function provides a basic sense of the distribution of this variable.
+
+```{r}
+#Summary statistics for % of limited English-speaking households
+summary(sdoh$ACS_PCT_HH_LIMIT_ENGLISH)
+```
+
+#### Since the mean (3.5%) is above the median (0.87%), this indicates that the distribution is right-skewed. This means that most counties have a relatively low percentage of limited English-speaking households, and counties with a very high percentage of limited English-speaking households are considered outliers. 
+
+#### Next, in order to visualize this distribution graphically, we created a histogram using the “ggplot2” package in R. We used the function ggplot(), which takes the dataset and variable of interest as input and plots it along the x axis. The function geom_histogram specifies the type of graph that we would like to make: a histogram. Within this function, we specified colors for our graph. We added x and y axis labels using xlab() and ylab() respectively. Finally, we added a title using ggtitle(). Each of these functions is linked back to our original graph using the “+” operator.  
+
+```{r}
+#Distribution of percentage of limited English-speaking households 
+ggplot(sdoh, aes(ACS_PCT_HH_LIMIT_ENGLISH)) + #selects variable to put on x axis
+  geom_histogram(color = 'grey', fill = 'light blue')+ #sets graph color 
+  xlab("% of limited English-speaking households") + #adds x axis label
+  ylab("number of counties")+ #adds y axis label 
+  ggtitle("Distribution of US Counties by Percentage of Limited English-Speaking Households")+ theme_minimal() #sets graph aesthetics built into ggplot package
+```
+
+#### This graph clearly depicts the right-skewed distribution of this variable demonstrated by the summary statistics. It is clear that the percentage of limited English-speaking households is below 25% for the majority of the counties in this dataset. 
+
+#### Next, two methods were used to evaluate the relationship between limited English-speaking and health insurance coverage: a visual method (by graph) and a quantitative method (by calculating the correlation coefficient). For the graph, we used the function geom_point(), which creates a scatter plot. Within this function, the color, size, and opacity of the data being plotted was also customized. Finally, x and y axis labels, as well as a title, was added using the xlab(), ylab(), and ggtitle() functions. 
+
+```{r}
+#Correlation between limited English-speaking and private insurance coverage
+ggplot(sdoh, aes(x = ACS_PCT_HH_LIMIT_ENGLISH, y = ACS_PCT_PRIVATE_ANY)) +
+  geom_point(color = 'blue',alpha = 0.5, size = 2) +
+  geom_smooth(method = "lm", color = "black", se = FALSE) +
+  xlab("% of limited English-speaking households") +
+  ylab("% of population with private insurance")+
+  ggtitle("Association between English-speaking and private insurance ownership")+
+  theme_minimal()
+```
+
+#### This graph illustrates a negative correlation between the percentage of individuals from limited English-speaking households and the percentage of individuals with private insurance coverage by county. 
+
+#### The last piece of analysis for evaluating the relationship between limited English-speaking and insurance coverage was calculating the correlation coefficient. This provides a quantitative measure of the relationship that was illustrated on the scatterplot. R has a built-in function called “cor()” that automatically calculates the degree of association between two variables. 
+
+```{r} 
+##Calculate correlation coefficient 
+cor(sdoh$ACS_PCT_HH_LIMIT_ENGLISH, sdoh$ACS_PCT_PRIVATE_ANY)
+```
+
+#### The correlation coefficient was calculated as –0.39, which indicates a moderate negative association between limited English-speaking and insurance coverage. In other words, as the percentage of limited English-speaking households in a county increase, the percentage of residents with healthcare insurance coverage decreases.  
+
+#### The association between the percentage of individuals from limited English-speaking households and the percentage of individuals with private insurance coverage reflected in the graph and by the correlation coefficient is consistent with our prediction. Further investigation is necessary to understand the causal relationship between these variables, and how this disparity in health insurance might negatively affect healthcare outcomes for limited English-speaking populations.  
+
+### *2: Various Education Levels*
+
+#### The next variable we sought to investigate was how level of education is related to private health insurance coverage. This question arose due to a research study finding that increased educational attainment was associated with higher rates of health insurance coverage, particularly in conjunction with the factor of employment ([Dewar, 1998](https://www.sciencedirect.com/science/article/pii/S0272775797000344?via%3Dihub)). Based on this finding, we predicted that higher educational attainment would also be associated with higher rates of private health insurance specifically.  
+
+#### In this particular dataset, the percentage of people in each county with a designated education level is encoded through the following variables: “ACS_PCT_LT_HS” (less than high school education), “ACS_PCT_HS_GRADUATE” (only high school diploma), “ACS_PCT_BACHELOR_DGR” (holds a bachelor's degree), and “ACS_PCT_GRADUATE_DGR” (holds a graduate or professional degree).  
+
+#### To begin analysis and visualize the distribution of each educational variable, the ggplot() function used with geom_histogram produces a set of histogram distribution plots which show the distribution of the percentages of the population within each educational level by county in the dataset. The pivot_longer() function was used to put all the educational levels in one column. We named this new combined variable “sdoh_long”, which was used consistently throughout the project when creating a new combined variable. Next, we renamed the previous race to respective educational levels and created a histogram plot using the ggplot() function. 
+
+```{r}
+#Visualize distribution of education level in US by county
+#Convert data to long format to put into a facet wrapped plot 
+sdoh_long <- sdoh %>%
+  pivot_longer(cols = c(ACS_PCT_LT_HS, ACS_PCT_HS_GRADUATE, ACS_PCT_BACHELOR_DGR, ACS_PCT_GRADUATE_DGR),
+               names_to = "Education_Level",
+               values_to = "Percentage")
+
+#Rename education levels for better readability/understanding 
+sdoh_long$Education_Level <- factor(sdoh_long$Education_Level, 
+                                    levels = c("ACS_PCT_LT_HS", "ACS_PCT_HS_GRADUATE", "ACS_PCT_BACHELOR_DGR", "ACS_PCT_GRADUATE_DGR"),
+                                    labels = c("Less than High School", "High School Graduate", "Bachelor's Degree", "Graduate Degree"))
+
+#Create the faceted histogram plot with all four plots in one figure 
+ggplot(sdoh_long, aes(x = Percentage)) + 
+  geom_histogram(color = "grey", fill = "light blue", bins = 30) +
+  facet_wrap(~Education_Level, nrow = 2) +
+  xlab("% of county population") +
+  ylab("Number of counties") +
+  ggtitle("Distribution of Education Levels by County in the US") +
+  theme_minimal()
+```
+
+#### Next, to see the distribution numerically, a summary output of basic statistical metrics such as mean and median percentage for each education level group was calculated. The summary() function in this case, as aforementioned, provides a basic sense of the numeric distribution of the variables. The cat() function assists in printing all four summary outputs at once.  
+
+```{r}
+#Print all summary statistics for % of population with various education levels at once 
+{
+  cat("\n % of Population with Less than High School Diploma\n")
+  print(summary(sdoh$ACS_PCT_LT_HS))
+
+  cat("\n % of Population with Only High School Diploma\n")
+  print(summary(sdoh$ACS_PCT_HS_GRADUATE))
+
+  cat("\n % of Population with a Bachelor's Degree\n")
+  print(summary(sdoh$ACS_PCT_BACHELOR_DGR))
+
+  cat("\n % of Population with a Graduate or Professional Degree\n")
+  print(summary(sdoh$ACS_PCT_GRADUATE_DGR))
+}
+```
+
+#### By looking at this information, the mean is above the median for populations with less than a high school diploma, a bachelor’s degree, and a graduate or professional degree, indicating that each of the distributions is slightly right skewed. This means that counties with high percentages of these population groups are considered outliers. For those with only a high school diploma, the median is greater than the mean which indicates a slight left skew and that counties with lower percentages of these population groups are considered outliers.  
+
+#### The next step was then to analyze the relationship between each of these educational levels and private health insurance ownership. The following ggplot() functions used with geom_point are responsible for creating correlation plots for the relationship between each of the education level variables and private insurance ownership. The ggplot() functions are responsible for creating the plot, with the xlab(), ylab(), and ggtitle() functions being used to describe the axes names and title for the plot.   
+
+```{r}
+#Plotting all correlation association plots together on the same plot for visualization 
+# Convert data to long format to put all plots together 
+sdoh_long <- sdoh %>%
+  pivot_longer(cols = c(ACS_PCT_LT_HS, ACS_PCT_HS_GRADUATE, ACS_PCT_BACHELOR_DGR, ACS_PCT_GRADUATE_DGR),
+               names_to = "Education_Level",
+               values_to = "Education_Percentage")
+
+# Rename education levels for better readability/understanding 
+sdoh_long$Education_Level <- factor(sdoh_long$Education_Level, 
+                                    levels = c("ACS_PCT_LT_HS", "ACS_PCT_HS_GRADUATE", "ACS_PCT_BACHELOR_DGR", "ACS_PCT_GRADUATE_DGR"),
+                                    labels = c("Less than High School", "High School Graduate", "Bachelor's Degree", "Graduate Degree"))
+
+# Create the faceted scatter plot with trend lines for each relationship
+ggplot(sdoh_long, aes(x = Education_Percentage, y = ACS_PCT_PRIVATE_ANY)) +
+  geom_point(aes(color = Education_Level), alpha = 0.5, size = 2) + 
+  geom_smooth(method = "lm", color = "black", se = FALSE) +  
+  facet_wrap(~Education_Level, nrow = 2) +
+  scale_color_manual(values = c("green", "blue", "red", "purple")) +  
+  xlab("% of Population with Specified Education Level") +
+  ylab("% of Population with Private Insurance") +
+  ggtitle("Association between Education and Private Insurance Ownership") +
+  theme_minimal() +
+  theme(legend.position = "none") 
+
+```
+
+#### Based on the visual depictions seen in the correlation plots, higher percentages of the population being made up of those with less than a high school education and those with only a high school diploma is associated with a decreased percentage of the population owning private health insurance. Higher percentages of the population having a bachelor’s, graduate, or professional degree are associated with an increased percentage of the population owning private health insurance. Each plot also contains a trendline to depict the general relationship between education and private health insurance, which appears to be that higher education levels are associated with higher levels private health insurance ownership.  
+
+#### Finally, the next evaluation was to assess the correlation between education and private health insurance ownership through a correlation coefficient value. Using the cor() and cat() functions together also prints the correlation coefficients for each of these relationships.  
+```{r}
+#Print all correlation coefficients between education level and private insurance rates at once 
+{
+  cat("\n % of Population with Less than High School Education\n")
+  print(cor(sdoh$ACS_PCT_LT_HS, sdoh$ACS_PCT_PRIVATE_ANY))
+
+  cat("\n % of Population with Only High School Diploma\n")
+  print(cor(sdoh$ACS_PCT_HS_GRADUATE, sdoh$ACS_PCT_PRIVATE_ANY))
+
+  cat("\n % of Population with a Bachelor's Degree\n")
+  print(cor(sdoh$ACS_PCT_BACHELOR_DGR, sdoh$ACS_PCT_PRIVATE_ANY))
+
+  cat("\n % of Population with a Graduate or Professional Degree\n")
+  print(cor(sdoh$ACS_PCT_GRADUATE_DGR, sdoh$ACS_PCT_PRIVATE_ANY))
+}
+```
+
+#### As shown in output the correlation coefficients for the variables including those with less or only a high school diploma have negative coefficients (-0.69 and –0.29 respectively), whereas those with a bachelor’s, graduate, or professional degree have positive coefficients (0.56 and 0.43 respectively). These findings indicate that our initial prediction of higher education being associated with increased rates of private health insurance ownership is potentially correct. Further investigation is needed to assess further specifics of this relationship and how to potentially minimize this disparity.  
+
+### *3. Various Racial Groups*
+
+#### Another factor that shapes private insurance status is an individual’s racial background. We wanted to understand the relationship between private insurance coverage and race. According to a study conducted by the NIH, “blacks, Hispanics, and some Asian populations, when compared with whites, appear to have lower levels of health insurance coverage" ([National Research Council (US) Panel on Race, Ethnicity, and Health in Later Life, 2004](https://nap.nationalacademies.org/)).   
+
+#### In this dataset, the percentage of each racial group is encoded as the variables “ACS_PCT_WHITE” representing White, “ACS_PCT_BLACK” representing Black, “ACS_PCT_ASIAN” representing Asian, “ACS_PCT_AIAN” representing American Indian and Alaska Native and finally “ACS_PCT_MULT_RACE” representing multiple races.
+
+#### To begin, the distribution of racial groups across county was determined. The pivot_longer() function was used to put all the races in one column. We named this new combined variable “sdoh_long.” 
+
+#### Next, we renamed the previous race to reflect actual races: White, Black, Asian, American Indian/Alaska Native, and Multiracial. Then we created a histogram plot using the ggplot() function. The x-axis represents the percentage of the county’s population belonging to a racial group, while the y-axis shows the number of counties. Within this function, the color, size, and opacity of the data being plotted can also be customized. Finally, x and y axis labels, as well as a title, were added using the xlab(), ylab(), and ggtitle() functions.  
+
+```{r}
+#visualization of each racial group in percentage for counties
+#Convert data to long format
+sdoh_long <- sdoh %>%
+  pivot_longer(cols = c(ACS_PCT_WHITE, ACS_PCT_BLACK, ACS_PCT_ASIAN, ACS_PCT_AIAN, ACS_PCT_MULT_RACE),
+               names_to = "Race_Ethnicity",
+               values_to = "Percentage")
+
+#Rename categories for better readability
+sdoh_long$Race_Ethnicity <- factor(sdoh_long$Race_Ethnicity, 
+                                   levels = c("ACS_PCT_WHITE", "ACS_PCT_BLACK", "ACS_PCT_ASIAN", "ACS_PCT_AIAN", "ACS_PCT_MULT_RACE"),
+                                   labels = c("White", "Black", "Asian", "American Indian/Alaska Native", "Multiracial"))
+
+#Create a single faceted histogram plot
+ggplot(sdoh_long, aes(x = Percentage)) + 
+  geom_histogram(color = "grey", fill = "lightblue", bins = 30) +
+  facet_wrap(~Race_Ethnicity, nrow = 2) +  # Arrange plots in a 2-row layout
+  xlab("% of County Population") +
+  ylab("Number of Counties") +
+  ggtitle("Distribution of Racial/Ethnic Groups by County in the US") +
+  theme_minimal()
+
+```
+
+#### Based on the histogram distribution, it is observed that each race has a skew to its data. Looking at the white population, it has a left skew, showing most of the data falls around 100% of the population for a lot of counties, which indicates they are the predominate race. This is quite the opposite for all the other racial groups, which have a right skew showing their percentage is much closer to 0, which shows they are the minorities and have a lower representation
+
+#### The next step was using the summary () function to compute the median, mean, minimum, maximum, and both 1st and 3rd quartiles for each racial group. By analyzing these values, we can better understand the demographic makeup of different counties and how it may relate to private insurance coverage. We used the print() and cat()function helps with printing all 5 outputs of the summaries calculated at once.   
+
+```{r}
+#Print summary statistics for the distribution of every category of race at once
+{
+  cat("\n % of Population Identifying as White\n")
+  print(summary(sdoh$ACS_PCT_WHITE))
+
+  cat("\n % of Population Identifying as Black\n")
+  print(summary(sdoh$ACS_PCT_BLACK))
+
+  cat("\n % of Population Identifying as Asian\n")
+  print(summary(sdoh$ACS_PCT_ASIAN))
+
+  cat("\n % of Population Identifying as American Indian/Alaska Native (AIAN)\n")
+  print(summary(sdoh$ACS_PCT_AIAN))
+
+  cat("\n % of Population Identifying as Multiracial\n")
+  print(summary(sdoh$ACS_PCT_MULT_RACE))
+}
+
+```
+#### Looking at the summary statistics for each race and looking at the median, it is seen that the most represented race in the data set is white-identifying individuals. Having a median of 87.66% in comparison to the least represented population, American Indian/Alaska Native, having a median of 0.320%. Looking at the % population distribution of Whites, it is seen that they have a mean lower than the median, which indicates a left skew, which was seen in the histogram above. In addition, looking at the other races, they all had a mean higher than the median, indicating a right skew. We chose to look specifically at the median because it is resistant to outliers.  
+
+#### Next, we wanted to see the relationship between private insurance coverage and racial groups in the top 5 counties with the highest private insurance coverage rates. To achieve this, we used arrange(desc()) and slice(1:5) to identify these counties. The dataset was then transformed into a long format using pivot_longer(), which allows for easier visualization. An interactive bar chart was created using geom_bar() and ggplotly(), displaying the percentage of each racial group in these top counties. 
+
+```{r}
+#Selecting the racial variables, county and private insurance
+selected_racial_group_with_county <- sdoh %>%
+  select(COUNTY, ACS_PCT_WHITE, ACS_PCT_BLACK, ACS_PCT_ASIAN, ACS_PCT_AIAN, ACS_PCT_MULT_RACE, ACS_PCT_PRIVATE_ANY)
+
+#Identify top 5 counties with highest private insurance coverage
+top_counties <- selected_racial_group_with_county %>%
+  arrange(desc(ACS_PCT_PRIVATE_ANY)) %>%
+  slice(1:5)
+
+top_counties
+
+#Convert race columns into long format for visualization
+selected_long <- top_counties %>%
+  pivot_longer(cols = c(ACS_PCT_WHITE, ACS_PCT_BLACK, ACS_PCT_ASIAN, ACS_PCT_AIAN, ACS_PCT_MULT_RACE),
+               names_to = "Race",
+               values_to = "Percentage")
+
+
+#Creating an interactive bar plot
+p <- ggplot(selected_long, aes(x = Race, y = Percentage, fill = Race, 
+                               text = paste("County:", COUNTY, 
+                                            "<br>Private Insurance:", round(ACS_PCT_PRIVATE_ANY, 2)))) +
+  geom_bar(stat = "identity", position = "dodge") +
+  facet_wrap(~ COUNTY, scales = "free_y") +  # Facet by County only
+  labs(title = "Race Distribution in Top 5 Counties with Highest Private Insurance",
+       x = NULL,  # Removes x-axis label to avoid repetition
+       y = "Percentage of Population") +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(),  # Removes race labels at the bottom
+        axis.ticks.x = element_blank(),
+        strip.text = element_text(size = 10, face = "bold"),  # Adjust facet title size
+        legend.position = "bottom")  # Moves legend to bottom
+
+#Convert to interactive plotly graph
+interactive_plot <- ggplotly(p, tooltip = "text")
+
+interactive_plot
+```
+
+#### The interactive plot follows the pattern established previously about the distribution of each race; the most represented are Whites. However, in Kalawao County, we see that the race with the highest representation is AIAN, which is an interesting departure from the observed trend.  Also, in comparison to the other counties the other races like Black, Asian and Multirace individuals, had a higher representation in Kalawao County.   
+
+#### Lastly, we wanted to get the actual correlation between each racial group and private insurance coverage. We used the cor() function to calculate the correlation coefficient for each racial group. The cat() function assists in printing all four summary outputs at once. The numbers range from –1 to 1. The closer to 1, the higher the correlation of the 2 variables. If the value is negative, it indicates that as one variable increases, the other decreases. However, if you have a positive value, as one increases, so does the other variable. The racial group with the highest correlation with private insurance having a moderate positive correlation was White, having a value of 0.42. 
+
+```{r}
+#Print correlation coefficients for every association between race and private insurance at once 
+{
+  cat("\nCorrelation: % White vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_WHITE, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+
+  cat("\nCorrelation: % Black vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_BLACK, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+
+  cat("\nCorrelation: % Asian vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_ASIAN, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+
+  cat("\nCorrelation: % American Indian/Alaska Native vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_AIAN, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+
+  cat("\nCorrelation: % Multiracial vs. Private Insurance\n")
+  print(cor(sdoh$ACS_PCT_MULT_RACE, sdoh$ACS_PCT_PRIVATE_ANY, use = "complete.obs"))
+}
+```
+
+#### Understanding the correlation between racial groups and private insurance will help us improve healthcare equity and access. We had a prediction of race and private insurance coverage having a strong correlation, with Whites having the strong positive correlation and the other races having a negative strong correlation. However, our findings proved otherwise; we saw a moderate positive correlation between White and private insurance coverage and Asians having a low positive correlation (0.23). Blacks and American Indian/Alaska Native both had a negative low correlation (-0.29 and 0.261, respectively). This might be because certain racial groups are more likely to have public insurance coverage. 
+
+# **Conclusion**
+
+#### Overall, the key findings of this exploratory analysis include that populations with higher levels of limited English-speaking households, those with less than or only a high school diploma for education, and higher percentages of White individuals are associated with higher levels of private health insurance ownership. 
+
+#### It is imperative to investigate these findings further to determine possible routes of community support for marginalized populations in order to ensure equitable access to healthcare services. Looking forward, the analysis suggests further investigation into a statistical test using the regression model or an ANOVA test to be able to conclude causation between the variables, which showed some correlation. The regression model would be used for testing an association between the percentage of limited English-speaking households in the population as this is a quantitative variable, and the ANOVA test could look into associations between the education level or racial category variables as these are categorical groupings. Additionally, further investigation could address limitations of this work, including reshaping the distributions to be normally distributed for each variable.  
+
+#### Investigating these relationships and determining more information about these relationships would enable us to further our knowledge about ways we can use this information to improve healthcare access and equity for groups who are marginalized and are typically underrepresented populations of private health insurance owners.  
+
+# **Works Cited**
+
+#### Dewar, M. D. (1998). Do those with more formal education have better health insurance opportunities? Economics of Education Review, 17(3), 267-277. https://doi.org/10.1016/S0272-7757(97)00034-4 
+
+#### National Research Council (US) Panel on Race, Ethnicity, and Health in Later Life; Bulatao, R. A., & Anderson, N. B. (Eds.). (2004). Race, ethnicity, and health in later life. Washington, DC: [National Academies Press (US)](https://nap.nationalacademies.org/). 
+
+#### Ramirez, N., Shi, K., Yabroff, K. R., Han, X., Fedewa, S. A., & Nogueira, L. M. (2023). Access to care among adults with limited English proficiency. Journal of General Internal Medicine, 38(3), 592–599. https://doi.org/10.1007/s11606-022-07690-3 
+
+#### Agency for Healthcare Research and Quality. (2023, June). Social Determinants of Health Database. Rockville, MD. https://www.ahrq.gov/sdoh/data-analytics/sdoh-data.html   

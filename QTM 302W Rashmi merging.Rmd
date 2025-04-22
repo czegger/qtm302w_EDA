@@ -1,0 +1,84 @@
+---
+title: "QTM 302W Draft Presentation: Project Code"
+author: "Rashmi Raveendran, Claire Zegger, Yvette Addo"
+date: "2025-04-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Uploading Datasets 
+
+```{r, message=FALSE}
+setwd("/Users/clairezegger/qtm302w")
+sdoh2019 <- read.csv("SDOH_2019_COUNTY_1_0.csv")
+hdmd2019 <- read.csv("hdmd2019.csv")
+
+#Load libraries 
+library(dplyr)
+```
+
+## Filtering the HDMD Dataset 
+
+```{r}
+hdmd2019 <- hdmd2019 %>%
+  filter(LocationAbbr == "AL",
+         GeographicLevel == "County",
+         Topic == "Heart Disease Mortality",
+         Data_Value_Unit == "per 100,000 population",
+         StratificationCategory1 == "Sex",
+         Stratification1 %in% c("Male", "Female", "Overall"),
+         StratificationCategory2 == "Race/Ethnicity",
+         Stratification2 %in% c("American Indian and Alaskan Native",
+                                   "Asian and Pacific Islander",
+                                   "Black",
+                                   "Hispanic",
+                                   "White", "Overall"))
+hdmd2019$LocationAbbr[hdmd2019$LocationAbbr == "AL"] <- "Alabama"
+```
+
+## Filtering the SDOH Dataset 
+```{r}
+sdoh2019 <- sdoh2019 %>%
+  filter(STATE == "Alabama") %>%
+  select(STATE,
+         COUNTY,
+         ACS_PCT_LT_HS,
+         ACS_PCT_HS_GRADUATE,
+         ACS_PCT_BACHELOR_DGR,
+         ACS_PCT_GRADUATE_DGR,
+         ACS_PCT_BLACK,
+         ACS_PCT_ASIAN,
+         ACS_PCT_AIAN,
+         ACS_PCT_MULT_RACE,
+         ACS_PCT_HH_LIMIT_ENGLISH, 
+         ACS_PCT_PRIVATE_ANY,
+         MGV_PCT_BEN_FFS_WHITE,
+         MGV_PCT_BEN_FFS_BLACK,
+         MGV_PCT_BEN_FFS_HISPANIC)
+```
+
+
+## Merging the datasets 
+
+```{r}
+# might need to make race only strat
+HDMD_SDOH_MERGED <- inner_join(hdmd2019, sdoh2019, by = c("LocationDesc" = "COUNTY")) %>%
+  select(-STATE, -Data_Value_Footnote_Symbol, -GeographicLevel, -DataSource, -Data_Value_Footnote, -StratificationCategory1, -TopicID, -LocationID, -Y_lat, -X_lon, -StratificationCategory2, -Data_Value_Type) %>%   
+  rename(County = LocationDesc,
+         State = LocationAbbr, 
+         MortalityRate = Data_Value, 
+         Sex = Stratification1,
+         Race = Stratification2)
+
+
+# Check that "Overall" is kept as value 
+unique(HDMD_SDOH_MERGED$Race)
+unique(HDMD_SDOH_MERGED$Sex)
+
+#Save file to downloads 
+write.csv(HDMD_SDOH_MERGED, "HDMD_SDOH_MERGED.csv", row.names = FALSE)
+```
+
