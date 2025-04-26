@@ -1,18 +1,19 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/czegger/qtm302w_EDA/main?urlpath=rstudio)
 
-# Project Name
-This project is a part of the [Data Science Working Group](http://datascience.codeforsanfrancisco.org) at [Code for San Francisco](http://www.codeforsanfrancisco.org).  Other DSWG projects can be found at the [main GitHub repo](https://github.com/sfbrigade/data-science-wg).
+# An Exploratory Analysis of Associations between Social Determinants and Health Insurance Status
+#### -- Project Status: [Completed]
 
-#### -- Project Status: [Active, On-Hold, Completed]
+## Contributing Members
+
+|Name     |  Institutional Affiliation   | 
+|---------|-----------------|
+|**Yvette Addo** | Emory University, Department of Quantitative Theory and Methods        |
+|**Rashmi Raveendran** |     Emory University, Department of Quantitative Theory and Methods     |
+|**Claire Zegger** |     Emory University, Department of Quantitative Theory and Methods     |
+
 
 ## Project Intro/Objective
-The purpose of this project is ________. (Describe the main goals of the project and potential civic impact. Limit to a short paragraph, 3-6 Sentences)
-
-### Partner
-* [Name of Partner organization/Government department etc..]
-* Website for partner
-* Partner contact: [Name of Contact], [slack handle of contact if any]
-* If you do not have a partner leave this section out
+Healthcare accessibility is a source of significant inequality in the United States. Without no universal coverage policy, healthcarecare accessibility is largely connected to health insurance ownership. This project aims to illustrate associations between private health insurance ownership and demographic variables commonly used in the health sciences (race, education level, English proficiency). By drawing attention to these correlations, we hope to reveal how insurance may have downstream effects on healthcare outcomes, and encourage future investigators and policymakers to see this as a potential target.
 
 ### Methods Used
 * Inferential Statistics
@@ -23,13 +24,6 @@ The purpose of this project is ________. (Describe the main goals of the project
 
 ### Technologies
 * R 
-* Python
-* D3
-* PostGres, MySql
-* Pandas, jupyter
-* HTML
-* JavaScript
-* etc. 
 
 ## Project Description
 (Provide more detailed overview of the project.  Talk a bit about your data sources and what questions and hypothesis you are exploring. What specific data analysis/visualization and modelling work are you using to solve the problem? What blockers and challenges are you facing?  Feel free to number or bullet point things here)
@@ -63,16 +57,7 @@ The purpose of this project is ________. (Describe the main goals of the project
 * [Blog Post](link)
 
 
-## Contributing DSWG Members
 
-**Team Leads (Contacts) : [Full Name](https://github.com/[github handle])(@slackHandle)**
-
-#### Other Members:
-
-|Name     |  Slack Handle   | 
-|---------|-----------------|
-|[Full Name](https://github.com/[github handle])| @johnDoe        |
-|[Full Name](https://github.com/[github handle]) |     @janeDoe    |
 
 ## Contact
 * If you haven't joined the SF Brigade Slack, [you can do that here](http://c4sf.me/slack).  
