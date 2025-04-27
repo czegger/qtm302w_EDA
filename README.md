@@ -21,7 +21,7 @@ Healthcare accessibility is a source of significant inequality in the United Sta
 * Correlation Tests
 
 ### Technologies & packages
-* R
+* **R** as programming language
 * **tidyverse** for data formatting and cleaning
 * **dplyr** for data manipulation
 * **ggplot** and **plotly** for data visualization
@@ -63,7 +63,4 @@ qtm302w_EDA/
 Click on this binder link:
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/czegger/qtm302w_EDA/main?urlpath=rstudio)
-
-## Featured Notebooks
-* [Notebook/Markdown/Slide Deck Title](link)
 
