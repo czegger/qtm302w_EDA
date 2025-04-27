@@ -1,7 +1,5 @@
 install.packages("tidyverse")
 install.packages("ggplot2")
-install.packages("tidyverse")
-install.packages("modelr")
-install.packages("patchwork")
-install.packages("gtsummary")
-install.packages("gt")
+install.packages("plotly")
+install.packages("dplyr
+install.packages("rmarkdown")

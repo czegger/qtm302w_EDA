@@ -21,7 +21,7 @@ Healthcare accessibility is a source of significant inequality in the United Sta
 * Correlation Tests
 
 ### Technologies & packages
-* R
+* **R** as programming language
 * **tidyverse** for data formatting and cleaning
 * **dplyr** for data manipulation
 * **ggplot** and **plotly** for data visualization
@@ -48,11 +48,13 @@ In order to understand whether health insurance coverage is associated with heal
 ### Repository Organization
 ```
 qtm302w_EDA/
+├── analysis/
+│   ├── EDA Code Notebook.Rmd
+│   └── EDA-Code-Notebook.html
+├── binder
 ├── data/
 │   └── sdohc.csv
-└── analysis code/
-    ├── EDA Code Notebook.Rmd
-    └── EDA-Code-Notebook.html
+└── renv
 ```
 ### Steps to run our analysis code locally
 1. Clone this repository (for help see this [tutorial](https://help.github.com/articles/cloning-a-repository/)).
@@ -63,7 +65,4 @@ qtm302w_EDA/
 Click on this binder link:
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/czegger/qtm302w_EDA/main?urlpath=rstudio)
-
-## Featured Notebooks
-* [Notebook/Markdown/Slide Deck Title](link)
 
