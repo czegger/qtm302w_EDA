@@ -50,10 +50,10 @@ In order to understand whether health insurance coverage is associated with heal
 qtm302w_EDA/
 ├── analysis/
 │   ├── EDA Code Notebook.Rmd
-│   └── EDA-Code-Notebook.html
+│   ├── EDA-Code-Notebook.html
+│   └── data/
+│       └── sdohc.csv
 ├── binder
-├── data/
-│   └── sdohc.csv
 └── renv
 ```
 ### Steps to run our analysis code locally
@@ -62,7 +62,10 @@ qtm302w_EDA/
 3. Run the file EDA Code Notebook.Rmd
 
 ### Steps to run our analysis code in the browser (no download required)
-Click on this binder link:
+Click on the binder link below & run the file EDA Code Notebook.Rmd
+
+**Note:** interface may take a few minutes to load
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/czegger/qtm302w_EDA/main?urlpath=rstudio)
+
 
