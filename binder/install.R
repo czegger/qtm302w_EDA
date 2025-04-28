@@ -1,2 +1,4 @@
-install.packages("tidyverse")
-install.packages("plotly")
+install.packages("renv")
+renv::restore()
+#install.packages("tidyverse")
+#install.packages("plotly")
