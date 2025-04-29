@@ -54,9 +54,9 @@ qtm302w_EDA/
 ### Steps to run our analysis code in the browser (no download required)
 Click on the binder link below & run the file EDA Code Notebook.Rmd
 
-**Note:** interface may take a few minutes to load
-
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/czegger/qtm302w_EDA/main?urlpath=rstudio)
+
+**Note:** interface may take a few minutes to load
 
 ### Steps to run our analysis code locally
 1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository
