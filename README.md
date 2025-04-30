@@ -61,7 +61,7 @@ Click on the binder link below & run the file EDA Code Notebook.Rmd
 
 ### Steps to run our analysis code locally
 1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository.
-2. Open repository in R Studio. The renv folder contains the library of packages used in this project. The .Rlockfile records the versions of these packages to be used. When this repository is opened, all necessary packages and versions will be installed automatically.
+2. Open repository in R Studio. The renv folder contains the library of packages used in this project. The renv.lockfile records the versions of these packages to be used. When this repository is opened, all necessary packages and versions will be installed automatically.
 3. Run the file EDA Code Notebook.Rmd, which can be found in the analysis folder. This file contains the code we used to perform our analysis accompanied by explanations of the results. After running the code, scroll through the file to see graphs displaying the correlation between each variable and private insurance coverage.
 4. For technical documentation on specific functions we used, simply type ?functionname() into the Console.
 
