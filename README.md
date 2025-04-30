@@ -24,9 +24,9 @@ Healthcare accessibility is a source of significant inequality in the United Sta
 ### Technologies & packages
 * **R** as programming language
 * **renv** for package management and version control
-* **tidyverse** 
-* **dplyr** for data manipulation
-* **ggplot** and **plotly** for data visualization
+* **tidyverse** including:
+  * **dplyr** for data manipulation
+  * **ggplot** and **plotly** for data visualization
 
 ## Project Description
 The **central research question** of this project is the following: How is private health insurance correlated with social determinants of health? To answer this question, we selected data from the 2020 [Social Determinants of Health database](https://www.ahrq.gov/sdoh/data-analytics/sdoh-data.html) provided by the Agency for Healthcare Research and Quality. We chose to use this dataset because it is reputable, publically available and well-documented. Furthermore, the data is grouped at the county-level, which allowed us to conduct a relatively robust analysis of the relationship between health insurance coverage and demographic features across the US. 
