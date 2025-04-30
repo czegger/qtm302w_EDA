@@ -23,6 +23,7 @@ Healthcare accessibility is a source of significant inequality in the United Sta
 
 ### Technologies & packages
 * **R** as programming language
+* **renv** for package management and version control
 * **tidyverse** 
 * **dplyr** for data manipulation
 * **ggplot** and **plotly** for data visualization
@@ -59,8 +60,8 @@ Click on the binder link below & run the file EDA Code Notebook.Rmd
 **Note:** interface may take a few minutes to load
 
 ### Steps to run our analysis code locally
-1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository
-2. Open repository in R Studio. The renv folder contains our library with the version of R and specific package versions used in this project.
+1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository.
+2. Open repository in R Studio. The renv folder contains the library of packages used in this project. The .Rlockfile records the versions of these packages to be used. When this repository is opened, all necessary packages and versions will be installed automatically.
 3. Run the file EDA Code Notebook.Rmd, which can be found in the analysis folder. This file contains the code we used to perform our analysis accompanied by explanations of the results. After running the code, scroll through the file to see graphs displaying the correlation between each variable and private insurance coverage.
 4. For technical documentation on specific functions we used, simply type ?functionname() into the Console.
 
