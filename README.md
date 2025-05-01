@@ -23,9 +23,10 @@ Healthcare accessibility is a source of significant inequality in the United Sta
 
 ### Technologies & packages
 * **R** as programming language
-* **tidyverse** 
-* **dplyr** for data manipulation
-* **ggplot** and **plotly** for data visualization
+* **renv** for package management and version control
+* **tidyverse** including:
+  * **dplyr** for data manipulation
+  * **ggplot** and **plotly** for data visualization
 
 ## Project Description
 The **central research question** of this project is the following: How is private health insurance correlated with social determinants of health? To answer this question, we selected data from the 2020 [Social Determinants of Health database](https://www.ahrq.gov/sdoh/data-analytics/sdoh-data.html) provided by the Agency for Healthcare Research and Quality. We chose to use this dataset because it is reputable, publically available and well-documented. Furthermore, the data is grouped at the county-level, which allowed us to conduct a relatively robust analysis of the relationship between health insurance coverage and demographic features across the US. 
@@ -59,8 +60,8 @@ Click on the binder link below & run the file EDA Code Notebook.Rmd
 **Note:** interface may take a few minutes to load
 
 ### Steps to run our analysis code locally
-1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository
-2. Open repository in R Studio. The renv folder contains our library with the version of R and specific package versions used in this project.
+1. [Clone](https://help.github.com/articles/cloning-a-repository/) this repository.
+2. Open repository in R Studio. The renv folder contains the library of packages used in this project. The renv.lockfile records the versions of these packages to be used. When this repository is opened, all necessary packages and versions will be installed automatically.
 3. Run the file EDA Code Notebook.Rmd, which can be found in the analysis folder. This file contains the code we used to perform our analysis accompanied by explanations of the results. After running the code, scroll through the file to see graphs displaying the correlation between each variable and private insurance coverage.
 4. For technical documentation on specific functions we used, simply type ?functionname() into the Console.
 
